@@ -1,5 +1,5 @@
 from app.database.base import Base
-from sqlalchemy import create_engine, inspect
+from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.orm import sessionmaker
 from app.models.user_model import User
 import logging
@@ -10,9 +10,6 @@ DATABASE_URL = "mysql+mysqlconnector://uadmin:123456@localhost:3306/becho_db"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-# Create tables
 
 
 def init_db():
@@ -39,3 +36,10 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+# Example: Add a new column
+#query = "ALTER TABLE users ADD COLUMN profileImage VARCHAR(512)"
+#query = "ALTER TABLE users DROP COLUMN profileImage"
+# with engine.connect() as connection:
+#     connection.execute(text(query))
