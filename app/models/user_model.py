@@ -1,8 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
 from app.database.base import Base
 from datetime import datetime
-from typing import Optional
-from sqlalchemy.orm import Mapped, mapped_column
 
 class User(Base):
     __tablename__ = 'users'
@@ -24,4 +22,6 @@ class User(Base):
                         onupdate=datetime.utcnow)  # Last update timestamp
     last_login = Column(DateTime, nullable=True)  # Last login timestamp
     profileImage = Column(String(512), nullable=True)
-    
+    address = Column(String(512), nullable=True)
+    lat = Column(String(512), nullable=True)
+    lng = Column(String(512), nullable=True)

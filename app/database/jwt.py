@@ -1,8 +1,11 @@
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
 from fastapi.security import OAuth2PasswordBearer
-from fastapi import Depends, HTTPException, status
+from fastapi import HTTPException, status
 from typing import Dict
+from fastapi import HTTPException, Request
+from fastapi.security import HTTPBearer
+from typing import Optional
 
 # Replace with a secure secret key
 SECRET_KEY = "yXy3mJ82HqLP_NFt8QfB2qLjYhc7u-BiXJz5Sm1KXzGw"
@@ -39,5 +42,15 @@ def verify_access_token(token: str) -> Dict:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        )  
         
+class OptionalHTTPBearer(HTTPBearer):
+    async def __call__(self, request: Request) -> Optional[str]:
+        from fastapi import status
+        try:
+            r = await super().__call__(request)
+            token = r.credentials
+        except HTTPException as ex:
+            assert ex.status_code == status.HTTP_403_FORBIDDEN, ex
+            token = None
+        return token

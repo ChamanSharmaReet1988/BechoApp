@@ -27,3 +27,11 @@ class UserUpdate(BaseModel):
         from_attributes = True
         arbitrary_types_allowed = True
         
+class UserLocationUpdate(BaseModel):        
+    address: Optional[str]
+    lat: Optional[str]
+    lng: Optional[str]
+    class Config:
+        from_attributes = True
+        arbitrary_types_allowed = True
+        

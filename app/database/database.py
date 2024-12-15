@@ -1,7 +1,6 @@
 from app.database.base import Base
 from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.orm import sessionmaker
-from app.models.user_model import User
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -11,12 +10,15 @@ DATABASE_URL = "mysql+mysqlconnector://uadmin:123456@localhost:3306/becho_db"
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-
 def init_db():
     logging.debug('Connecting to database...')
     session = SessionLocal()
-    Base.metadata.create_all(bind=engine)
-    logging.debug('Creating tables...')
+    try:
+         Base.metadata.drop_all(engine)
+         Base.metadata.create_all(engine)
+         logging.debug('Creating tables...')
+    except Exception as e:
+         print(f"Error creating tables: {e}")
 
     session.commit()
     session.close()
