@@ -28,7 +28,7 @@ def create_item(item: schema_item.ItemCreate, db: Session = Depends(get_db), tok
     return new_user
 
 
-@router.get("/delete_item/{user_id}")
+@router.delete("/delete_item/{user_id}")
 def delete_item(item_id: int, db: Session = Depends(get_db), token: OAuth2 = Depends(oauth2_scheme)):
     # Check if email already exists
     if not token:
@@ -46,7 +46,7 @@ def delete_item(item_id: int, db: Session = Depends(get_db), token: OAuth2 = Dep
     return {"message": "Item deleted successfully", "item_id": item_id}
 
 
-@router.get("/update_item/{user_id}")
+@router.put("/update_item/{user_id}")
 def update_item(item_id: int, item_data: schema_item.ItemUpdate, db: Session = Depends(get_db), token: OAuth2 = Depends(oauth2_scheme)):
     # Check if email already exists
     if not token:

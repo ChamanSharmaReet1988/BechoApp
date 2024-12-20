@@ -96,7 +96,7 @@ def get_user(user_id: int, db: Session = Depends(get_db), token: OAuth2 = Depend
     return user
 
 
-@router.get("/delete_user/{user_id}")
+@router.delete("/delete_user/{user_id}")
 def delete_user(user_id: int, db: Session = Depends(get_db), token: OAuth2 = Depends(oauth2_scheme)):
     if not token:
         raise HTTPException(status_code=401, detail="Not authotrized")
