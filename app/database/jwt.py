@@ -12,6 +12,7 @@ SECRET_KEY = "yXy3mJ82HqLP_NFt8QfB2qLjYhc7u-BiXJz5Sm1KXzGw"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
+
 def create_access_token(data: dict):
     """Create a JWT access token."""
     to_encode = data.copy()
@@ -28,7 +29,9 @@ def decode_access_token(token: str):
     except JWTError:
         return None
 
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 
 def verify_access_token(token: str) -> Dict:
     """
@@ -42,8 +45,9 @@ def verify_access_token(token: str) -> Dict:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",
             headers={"WWW-Authenticate": "Bearer"},
-        )  
-        
+        )
+
+
 class OptionalHTTPBearer(HTTPBearer):
     async def __call__(self, request: Request) -> Optional[str]:
         from fastapi import status

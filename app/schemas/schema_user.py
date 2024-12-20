@@ -14,24 +14,27 @@ class UserResponse(UserBase):
     id: int
     name: Optional[str] = None
     email: Optional[str] = None
-    jwt_token: Optional[str] = None
+    jwtToken: Optional[str] = None
 
     class Config:
         from_attributes = True
 
-class UserUpdate(BaseModel):        
+
+class UserUpdate(BaseModel):
     name: Optional[str]
     email: Optional[str]
     profileImage: Optional[str]
+
     class Config:
         from_attributes = True
         arbitrary_types_allowed = True
-        
-class UserLocationUpdate(BaseModel):        
+
+
+class UserLocationUpdate(BaseModel):
     address: Optional[str]
     lat: Optional[str]
     lng: Optional[str]
+
     class Config:
         from_attributes = True
         arbitrary_types_allowed = True
-        
