@@ -31,7 +31,7 @@ def create_user(user: schema_user.UserCreate, db: Session = Depends(get_db)):
     return new_user
 
 
-@router.put("/update/{user_id}")
+@router.put("/update")
 def update_user(user_id: int, user_data: schema_user.UserUpdate, db: Session = Depends(get_db), token: OAuth2 = Depends(oauth2_scheme)):
 
     if not token:
@@ -60,7 +60,7 @@ def update_user(user_id: int, user_data: schema_user.UserUpdate, db: Session = D
     return {"message": "User updated successfully", "user_id": user_id}
 
 
-@router.put("/update_location/{user_id}")
+@router.put("/update_location")
 def update_location(user_id: int, user_data: schema_user.UserLocationUpdate, db: Session = Depends(get_db), token: OAuth2 = Depends(oauth2_scheme)):
     if not token:
         raise HTTPException(status_code=401, detail="Not authotrized")
@@ -96,7 +96,7 @@ def get_user(user_id: int, db: Session = Depends(get_db), token: OAuth2 = Depend
     return user
 
 
-@router.delete("/delete_user/{user_id}")
+@router.delete("/delete_user")
 def delete_user(user_id: int, db: Session = Depends(get_db), token: OAuth2 = Depends(oauth2_scheme)):
     if not token:
         raise HTTPException(status_code=401, detail="Not authotrized")

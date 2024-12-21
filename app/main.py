@@ -21,11 +21,12 @@ def read_root():
 
 # For admin part
 class UserAdmin(ModelView, model=User):
-    column_list = [User.id, User.name]
+    column_list = [User.id, User.name, User.phone]
 
 
 class ItemAdmin(ModelView, model=Item):
-    column_list = [Item.id, Item.title, Item.description]
+    column_list = [Item.id, Item.title,
+                   Item.description, Item.price, Item.views]
 
 
 admin.add_view(UserAdmin)
