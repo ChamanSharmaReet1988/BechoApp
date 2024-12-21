@@ -9,7 +9,7 @@ from datetime import datetime
 from fastapi.security import OAuth2
 from sqlalchemy import func
 
-router = APIRouter(prefix="/item", tags=["Items"])
+router = APIRouter(prefix="/items", tags=["Items"])
 oauth2_scheme = jwt.OptionalHTTPBearer()
 
 
@@ -73,7 +73,7 @@ def update_item(item_id: int, item_data: schema_item.ItemUpdate, db: Session = D
 
 
 @router.get("/get_items")
-def get_items_within_radius(user_id: int, db: Session = Depends(get_db), radius_km: float = 2.0, token: OAuth2 = Depends(oauth2_scheme)):
+def get_items(user_id: int, db: Session = Depends(get_db), radius_km: float = 2.0, token: OAuth2 = Depends(oauth2_scheme)):
     # Check if email already exists
     if not token:
         raise HTTPException(status_code=401, detail="Not authotrized")
@@ -82,7 +82,7 @@ def get_items_within_radius(user_id: int, db: Session = Depends(get_db), radius_
     print(decoded_payload)
 
     # Fetch user latitude and longitude
-    user_location = db.query(User.latitude, User.longitude).filter(
+    user_location = db.query(User.lat, User.lng).filter(
         User.id == user_id).first()
     if not user_location:
         raise ValueError("User not found")
@@ -90,23 +90,61 @@ def get_items_within_radius(user_id: int, db: Session = Depends(get_db), radius_
     user_lat, user_lng = user_location
 
     # Query items within the radius
-    items = db.query(
+    items_with_distance = db.query(
         Item,
         (
             6371 * func.acos(
-                func.sin(func.radians(user_lat)) * func.sin(func.radians(User.latitude)) +
-                func.cos(func.radians(user_lat)) * func.cos(func.radians(User.latitude)) *
-                func.cos(func.radians(User.longitude) - func.radians(user_lng))
+                func.sin(func.radians(user_lat)) * func.sin(func.radians(User.lat)) +
+                func.cos(func.radians(user_lat)) * func.cos(func.radians(User.lat)) *
+                func.cos(func.radians(User.lng) - func.radians(user_lng))
             )
         ).label("distance")
-    ).filter(
+    ).join(User, Item.userId == User.id).filter(
         (6371 * func.acos(
-            func.sin(func.radians(user_lat)) * func.sin(func.radians(User.latitude)) +
-            func.cos(func.radians(user_lat)) * func.cos(func.radians(User.latitude)) *
-            func.cos(func.radians(User.longitude) - func.radians(user_lng))
-        )) <= radius_km,
+            func.sin(func.radians(user_lat)) * func.sin(func.radians(User.lat)) +
+            func.cos(func.radians(user_lat)) * func.cos(func.radians(User.lat)) *
+            func.cos(func.radians(User.lng) - func.radians(user_lng))
+        )) <= radius_km,  # Radius filter
         Item.isActive == True,  # Only active items
-        Item.isDeleted == False  # Exclude deleted items
+        Item.isDeleted == False,
+        Item.userId != user_id
     ).all()
+
+    if not items_with_distance:
+        raise HTTPException(
+            status_code=404, detail="No items found for this user")
+
+# Serialize results
+    results = [
+        {
+            **item.__dict__,
+            "distance": distance
+        }
+        for item, distance in items_with_distance
+    ]
+
+    # Clean up SQLAlchemy metadata
+    for result in results:
+        result.pop("_sa_instance_state", None)
+
+    return results
+
+
+@router.get("/my_items/")
+def get_my_items(user_id: int, db: Session = Depends(get_db), token: OAuth2 = Depends(oauth2_scheme)):
+    # Check if email already exists
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authotrized")
+    # Verify the JWT token
+    decoded_payload = jwt.verify_access_token(token)
+    print(decoded_payload)
+
+    # Query items for the given user_id
+    items = db.query(Item).filter(Item.userId == user_id,
+                                  Item.isDeleted == False, Item.isActive == True).all()
+
+    if not items:
+        raise HTTPException(
+            status_code=404, detail="No items found for this user")
 
     return items

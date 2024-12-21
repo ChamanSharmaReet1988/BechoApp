@@ -7,7 +7,7 @@ class Item(Base):
     __tablename__ = "items"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    userId = Column(Integer,  nullable=False)
+    userId = Column(Integer, ForeignKey('users.id'))
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=False)
     price = Column(String(255), nullable=False)
